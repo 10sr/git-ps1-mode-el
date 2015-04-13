@@ -7,11 +7,12 @@ git-ps1-mode.el
 
 ![SS](ss.png)
 
-Global minor-mode to print `__git_ps1` .
+Global minor-mode to print `__git_ps1` in mode-line.
 
-This minor-mode print current `git` status in emacs mode-line as a mode-name.
-Status text will be generated with `__git_ps1`, which is usually defined in
-`"git-prompt.sh"`.
+This minor-mode will print current `git` status in Emacs mode-line as a
+mode-name. Status text will be generated using `__git_ps1`, which is usually
+defined in `"git-prompt.sh"`. By default, the text should be like
+`"[GIT:master *]"`.
 
 
 
@@ -35,8 +36,8 @@ User Configuration Variables
 * `git-ps1-mode-showuntrackedfiles`
 * `git-ps1-mode-showupstream`
 
-  Values for "GIT_PS1_SHOWDIRTYSTATE", "GIT_PS1_SHOWSTASHSTATE",
-  "GIT_PS1_SHOWUNTERACKEDFILES" and "GIT_PS1_SHOWUPSTREAM" respectively.
+  Values for `GIT_PS1_SHOWDIRTYSTATE`, `GIT_PS1_SHOWSTASHSTATE`,
+  `GIT_PS1_SHOWUNTERACKEDFILES` and `GIT_PS1_SHOWUPSTREAM` respectively.
   These variables are for configuring `__git_ps1` output: see document in
   "git-prompt.sh" file for details.
 
