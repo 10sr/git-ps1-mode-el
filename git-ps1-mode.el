@@ -7,6 +7,8 @@
 
 ;; Contributor: acple <silentsphere110@gmail.com>
 
+;; This file is not part of GNU Emacs.
+
 ;; Copyright (C) 2015 by 10sr <8slashes+el [at] gmail [dot] com>
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -212,6 +214,7 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
 
 ;; Minor-mode
 
+;;;###autoload
 (define-minor-mode git-ps1-mode
   "Minor-mode to print __git_ps1."
   :global t
