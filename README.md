@@ -7,3 +7,9 @@ git-ps1-mode.el
 ===============
 
 Global minor-mode to print __git_ps1 .
+
+
+License
+-------
+
+This software is licensed under MIT License.
