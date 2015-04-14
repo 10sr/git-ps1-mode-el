@@ -269,9 +269,11 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
   :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
-        (or git-ps1-mode-ps1-file
-            (setq git-ps1-mode-ps1-file
-                  (git-ps1-mode-find-ps1-file)))
+        (unless git-ps1-mode-ps1-file
+          (error "`git-ps1-mode-ps1-file' is not set"))
+        (unless (file-readable-p git-ps1-mode-ps1-file)
+          (error (format "Cannot find file %s: Set `git-ps1-mode-ps1-file' properly"
+                         git-ps1-mode-ps1-file)))
         (git-ps1-mode-update-current)
         (add-hook 'after-change-major-mode-hook
                   'git-ps1-mode-update-current)
