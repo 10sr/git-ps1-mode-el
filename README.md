@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/10sr/git-ps1-mode-el.svg)](https://travis-ci.org/10sr/git-ps1-mode-el)
-)
+
 
 
 
