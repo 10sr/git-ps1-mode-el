@@ -1,8 +1,11 @@
-;;; modeline-git-branch.el --- "[git-branch]"
+;;; git-ps1-mode.el --- Global minor-mode to print __git_ps1
 
-;; Author: acple <silentsphere110@gmail.com>
-;; Keywords: mode-line
-;; Version: 0.0.1
+;; Author: 10sr <8slashes+el [at] gmail [dot] com>
+;; URL: https://github.com/10sr/git-ps1-mode-el
+;; Version: 0.1.0
+;; Keywords: utility mode-line git
+
+;; Contributor: acple <silentsphere110@gmail.com>
 
 ;;; Code:
 
@@ -124,6 +127,6 @@
     (modeline-git-branch-disable))
   (force-mode-line-update t))
 
-(provide 'modeline-git-branch)
+(provide 'git-ps1-mode)
 
-;;; modeline-git-branch.el ends here
+;;; git-ps1-mode.el ends here
