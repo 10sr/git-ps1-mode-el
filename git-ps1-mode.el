@@ -34,6 +34,27 @@ so usually you do not need to set this explicitly.
 Instead, add to `git-ps1-mode-ps1-file-candidates-list' if you want to check
 other files.")
 
+;; variables to configure __git_ps1
+(defvar git-ps1-mode-showdirtystate
+  (or (getenv "GIT_PS1_SHOWDIRTYSTATE")
+      "")
+  "Value of  GIT_PS1_SHOWDIRTYSTATE when running __git_ps1.")
+
+(defvar git-ps1-mode-showstashstate
+  (or (getenv "GIT_PS1_SHOWSTASHSTATE")
+      "")
+  "Value of GIT_PS1_SHOWSTASHSTATE when running __git_ps1.")
+
+(defvar git-ps1-mode-showuntrackedfiles
+  (or (getenv "GIT_PS1_SHOWUNTRACKEDFILES")
+      "")
+  "Value of GIT_PS1_SHOWUNTRACKEDFILES when running __git_ps1.")
+
+(defvar git-ps1-mode-showupstream
+  (or (getenv "GIT_PS1_SHOWUPSTREAM")
+      "")
+  "Value of GIT_PS1_SHOWUPSTREAM when running __git_ps1.")
+
 
 
 (defvar git-ps1-mode-process nil
@@ -43,7 +64,7 @@ other files.")
   ""
   "Lighter text for `git-ps1-mode'.  This variable is for internal usage.")
 
-(defvar git-ps1-mode-lighter-text-format " GIT:%s"
+(defvar git-ps1-mode-lighter-text-format " [GIT:%s]"
   "Format for `git-ps1-mode' lighter.
 String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
 
@@ -95,7 +116,16 @@ Set FORCE to non-nil to skip buffer check."
             (eq buffer (current-buffer)))
     (with-current-buffer buffer
       (unless git-ps1-mode-process
-        (let ((process-connection-type nil))
+        (let ((process-environment `(,(concat "GIT_PS1_SHOWDIRTYSTATE="
+                                              git-ps1-mode-showdirtystate)
+                                     ,(concat "GIT_PS1_SHOWSTASHSTATE="
+                                              git-ps1-mode-showstashstate)
+                                     ,(concat "GIT_PS1_SHOWUNTRACKEDFILES="
+                                              git-ps1-mode-showuntrackedfiles)
+                                     ,(concat "GIT_PS1_SHOWUPSTREAM="
+                                              git-ps1-mode-showupstream)
+                                     ,@process-environment))
+              (process-connection-type nil))
           (setq git-ps1-mode-process
                 (start-process "git-ps1-mode" buffer
                                ;; TODO: parameterize bash executable
