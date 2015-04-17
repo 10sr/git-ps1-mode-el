@@ -7,22 +7,27 @@
 
 ;; Contributor: acple <silentsphere110@gmail.com>
 
-;;; Code:
+;;; Commentary:
 
-(defvar git-ps1-mode-string "[......]"
-  "String to show in mode-line.")
+;; Global minor-mode to print __git_ps1 in mode-line.
+
+;;; Code:
 
 (defvar git-ps1-mode-process nil
   "Existing process object or nil.")
 
+(defvar git-ps1-mode-line-text
+  ""
+  "Lighter text for `git-ps1-mode'.")
+
 ;; make local-variable
-(make-variable-buffer-local 'git-ps1-mode-string)
+(make-variable-buffer-local 'git-ps1-mode-line-text)
 (make-variable-buffer-local 'git-ps1-mode-process)
 
 
 (defun git-ps1-mode-schedule-update (buffer &optional force)
-  "Register process execution timer to run in BUFFER.
-"
+  "Register process execution timer.
+Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
   (run-with-idle-timer
    0.0 nil #'git-ps1-mode-run-process buffer force))
 
@@ -52,12 +57,12 @@ document of that function for details about PROCESS and OUTPUT."
     (with-current-buffer (process-buffer process)
       (cond ((string= "fatal: ref HEAD is not a symbolic ref"
                       (substring output 0 -1))
-             (setq git-ps1-mode-string "[no-branch]"))
+             (setq git-ps1-mode-line-text " [no-branch]"))
             ((string-match "^fatal" output)
-             (setq git-ps1-mode-string "[no-repo]"))
+             (setq git-ps1-mode-line-text " [no-repo]"))
             (t
-             (setq git-ps1-mode-string
-                   (format "[%s]" (substring output 11 -1)))))
+             (setq git-ps1-mode-line-text
+                   (format " [%s]" (substring output 11 -1)))))
       (force-mode-line-update))))
 
 (defun git-ps1-mode-clear-process (process state)
@@ -69,62 +74,56 @@ document of that function for details about PROCESS and STATE."
       (setq git-ps1-mode-process nil))))
 
 
-;; ===hook用関数定義============================================
+;; Functions for hooks
 
 ;; hook#1 after-change-major-mode-hook, after-save-hook
 (defun git-ps1-mode-update-current ()
+  "Update status text immediately."
+  (interactive)
   (unless (minibufferp (current-buffer))
     (git-ps1-mode-schedule-update (current-buffer) t)))
 
 ;; hook#2 select-window-functions
-(defun git-ps1-mode-update-when-select-window
-  (before-win after-win)
+(defun git-ps1-mode-update-when-select-window (before-win after-win)
+  "Update status text immediately.
+BEFORE-WIN and AFTER-WIN will be passed by `select-window-functions' hook."
   (unless (minibufferp (window-buffer after-win))
     (git-ps1-mode-schedule-update (window-buffer after-win))))
 
 ;; hook#3 set-selected-window-buffer-functions
-(defun git-ps1-mode-update-when-set-window-buffer
-  (before-buf win after-buf)
+(defun git-ps1-mode-update-when-set-window-buffer (before-buf win after-buf)
+  "Update status text immediately.
+BEFORE-BUF, WIN and AFTER-BUF will be passed by
+`set-selected-window-buffer-functions' hook."
   (unless (minibufferp after-buf)
     (git-ps1-mode-schedule-update after-buf)))
 
 
-;; ===マイナーモード定義========================================
+;; Minor-mode
 
-(defun git-ps1-mode-enable ()
-  (setcar (or (member '(vc-mode vc-mode) mode-line-format)
-              (list nil))
-          'git-ps1-mode-string)
-  (git-ps1-mode-update-current)
-  (add-hook 'after-change-major-mode-hook
-            'git-ps1-mode-update-current)
-  (add-hook 'after-save-hook
-            'git-ps1-mode-update-current)
-  (add-hook 'select-window-functions
-            'git-ps1-mode-update-when-select-window)
-  (add-hook 'set-selected-window-buffer-functions
-            'git-ps1-mode-update-when-set-window-buffer))
-
-(defun git-ps1-mode-disable ()
-  (setcar (or (memq 'git-ps1-mode-string mode-line-format)
-              (list nil))
-          '(vc-mode vc-mode))
-  (remove-hook 'after-change-major-mode-hook
-               'git-ps1-mode-update-current)
-  (remove-hook 'after-save-hook
-               'git-ps1-mode-update-current)
-  (remove-hook 'select-window-functions
-               'git-ps1-mode-update-when-select-window)
-  (remove-hook 'set-selected-window-buffer-functions
-               'git-ps1-mode-update-when-set-window-buffer))
-
-(define-minor-mode git-ps1-mode-mode
-  "[git-branch]"
-  :group 'git-ps1-mode
+(define-minor-mode git-ps1-mode
+  "Minor-mode to print __git_ps1."
   :global t
-  (if git-ps1-mode-mode
-      (git-ps1-mode-enable)
-    (git-ps1-mode-disable))
+  :lighter (:eval git-ps1-mode-line-text)
+  (if git-ps1-mode
+      (progn
+        (git-ps1-mode-update-current)
+        (add-hook 'after-change-major-mode-hook
+                  'git-ps1-mode-update-current)
+        (add-hook 'after-save-hook
+                  'git-ps1-mode-update-current)
+        (add-hook 'select-window-functions
+                  'git-ps1-mode-update-when-select-window)
+        (add-hook 'set-selected-window-buffer-functions
+                  'git-ps1-mode-update-when-set-window-buffer))
+    (remove-hook 'after-change-major-mode-hook
+                 'git-ps1-mode-update-current)
+    (remove-hook 'after-save-hook
+                 'git-ps1-mode-update-current)
+    (remove-hook 'select-window-functions
+                 'git-ps1-mode-update-when-select-window)
+    (remove-hook 'set-selected-window-buffer-functions
+                 'git-ps1-mode-update-when-set-window-buffer))
   (force-mode-line-update t))
 
 (provide 'git-ps1-mode)
