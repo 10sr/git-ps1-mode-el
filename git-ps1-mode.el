@@ -13,6 +13,29 @@
 
 ;;; Code:
 
+(defvar git-ps1-mode-ps1-file-candidates-list
+  '(
+    "/Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh"
+    "/usr/share/git/completion/git-prompt.sh"
+    "/opt/local/share/doc/git-core/contrib/completion/git-prompt.sh"
+    "/etc/bash_completion.d/git"
+    "/etc/bash_completion.d/git-prompt"
+    "/opt/local/share/git-core/git-prompt.sh"
+    "/opt/local/etc/bash_completion.d/git"
+    )
+  "List of candidates that may contain \"__git_ps1\" definition.
+This list will be loaded at the first time when `git-ps1-mode' is enabled.")
+
+(defvar git-ps1-mode-ps1-file
+  nil
+  "File path that contains \"__git_ps1\" definition.
+Usually this will be searched automatically by `git-ps1-mode-find-ps1-file'
+so usually you do not need to set this explicitly.
+Instead, add to `git-ps1-mode-ps1-file-candidates-list' if you want to check
+other files.")
+
+
+
 (defvar git-ps1-mode-process nil
   "Existing process object or nil.")
 
@@ -23,6 +46,35 @@
 ;; make local-variable
 (make-variable-buffer-local 'git-ps1-mode-lighter-text)
 (make-variable-buffer-local 'git-ps1-mode-process)
+
+
+
+;; Functions
+
+(defun git-ps1-mode-ps1-available-p (f)
+  "Return F if F exists and it contain function \"__git_ps1\"."
+  (and (file-readable-p f)
+       (with-temp-buffer
+         (insert ". " f "; "
+                 "__git_ps1 %s;")
+         (eq 0 (shell-command-on-region (point-min)
+                                        (point-max)
+                                        "bash -s"
+                                        nil
+                                        t)))
+       f))
+
+(defun git-ps1-mode-find-ps1-file (&optional list)
+  "Find file that contain \"__git_ps1\" definition from LIST.
+This function returns the path of the first file foundor nil if none.  If LIST
+ if omitted `git-ps1-mode-ps1-file-candidates-list' will be used."
+  (let ((l (or list
+               git-ps1-mode-ps1-file-candidates-list)))
+    (and l
+         (if (git-ps1-mode-ps1-available-p (car l))
+             (car l)
+           (and (cdr l)
+                (git-ps1-mode-find-ps1-file (cdr l)))))))
 
 
 (defun git-ps1-mode-schedule-update (buffer &optional force)
@@ -74,6 +126,7 @@ document of that function for details about PROCESS and STATE."
       (setq git-ps1-mode-process nil))))
 
 
+
 ;; Functions for hooks
 
 ;; hook#1 after-change-major-mode-hook, after-save-hook
@@ -99,6 +152,7 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
     (git-ps1-mode-schedule-update after-buf)))
 
 
+
 ;; Minor-mode
 
 (define-minor-mode git-ps1-mode
@@ -107,6 +161,8 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
   :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
+        (setq git-ps1-mode-ps1-file
+              (git-ps1-mode-find-ps1-file))
         (git-ps1-mode-update-current)
         (add-hook 'after-change-major-mode-hook
                   'git-ps1-mode-update-current)
