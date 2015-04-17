@@ -16,12 +16,12 @@
 (defvar git-ps1-mode-process nil
   "Existing process object or nil.")
 
-(defvar git-ps1-mode-line-text
+(defvar git-ps1-mode-lighter-text
   ""
-  "Lighter text for `git-ps1-mode'.")
+  "Lighter text for `git-ps1-mode'.  This variable is for internal usage.")
 
 ;; make local-variable
-(make-variable-buffer-local 'git-ps1-mode-line-text)
+(make-variable-buffer-local 'git-ps1-mode-lighter-text)
 (make-variable-buffer-local 'git-ps1-mode-process)
 
 
@@ -57,11 +57,11 @@ document of that function for details about PROCESS and OUTPUT."
     (with-current-buffer (process-buffer process)
       (cond ((string= "fatal: ref HEAD is not a symbolic ref"
                       (substring output 0 -1))
-             (setq git-ps1-mode-line-text " [no-branch]"))
+             (setq git-ps1-mode-lighter-text " [no-branch]"))
             ((string-match "^fatal" output)
-             (setq git-ps1-mode-line-text " [no-repo]"))
+             (setq git-ps1-mode-lighter-text " [no-repo]"))
             (t
-             (setq git-ps1-mode-line-text
+             (setq git-ps1-mode-lighter-text
                    (format " [%s]" (substring output 11 -1)))))
       (force-mode-line-update))))
 
@@ -104,7 +104,7 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
 (define-minor-mode git-ps1-mode
   "Minor-mode to print __git_ps1."
   :global t
-  :lighter (:eval git-ps1-mode-line-text)
+  :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
         (git-ps1-mode-update-current)
