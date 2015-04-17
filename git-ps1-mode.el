@@ -43,6 +43,10 @@ other files.")
   ""
   "Lighter text for `git-ps1-mode'.  This variable is for internal usage.")
 
+(defvar git-ps1-mode-lighter-text-format " GIT:%s"
+  "Format for `git-ps1-mode' lighter.
+String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
+
 ;; make local-variable
 (make-variable-buffer-local 'git-ps1-mode-lighter-text)
 (make-variable-buffer-local 'git-ps1-mode-process)
@@ -80,8 +84,9 @@ This function returns the path of the first file foundor nil if none.  If LIST
 (defun git-ps1-mode-schedule-update (buffer &optional force)
   "Register process execution timer.
 Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
-  (run-with-idle-timer
-   0.0 nil #'git-ps1-mode-run-process buffer force))
+  (when git-ps1-mode-ps1-file
+    (run-with-idle-timer
+     0.0 nil #'git-ps1-mode-run-process buffer force)))
 
 (defun git-ps1-mode-run-process (buffer force)
   "Run git process in BUFFER and get branch name.
@@ -93,13 +98,19 @@ Set FORCE to non-nil to skip buffer check."
         (let ((process-connection-type nil))
           (setq git-ps1-mode-process
                 (start-process "git-ps1-mode" buffer
-                               "git" "symbolic-ref" "HEAD"))
+                               ;; TODO: parameterize bash executable
+                               "bash" "-s"))
           (set-process-filter git-ps1-mode-process
                               'git-ps1-mode-update-modeline)
           (set-process-sentinel git-ps1-mode-process
                                 'git-ps1-mode-clear-process)
           (set-process-query-on-exit-flag git-ps1-mode-process
-                                          nil))))))
+                                          nil)
+          (process-send-string git-ps1-mode-process
+                               (format ". \"%s\"; __git_ps1 %s"
+                                       git-ps1-mode-ps1-file
+                                       "%s"))
+          (process-send-eof git-ps1-mode-process))))))
 
 (defun git-ps1-mode-update-modeline (process output)
   "Format output of `git-ps1-mode-run-process' and update modeline.
@@ -107,14 +118,9 @@ This function is passed as an argument for `set-process-filter': see
 document of that function for details about PROCESS and OUTPUT."
   (when (buffer-live-p (process-buffer process))
     (with-current-buffer (process-buffer process)
-      (cond ((string= "fatal: ref HEAD is not a symbolic ref"
-                      (substring output 0 -1))
-             (setq git-ps1-mode-lighter-text " [no-branch]"))
-            ((string-match "^fatal" output)
-             (setq git-ps1-mode-lighter-text " [no-repo]"))
-            (t
-             (setq git-ps1-mode-lighter-text
-                   (format " [%s]" (substring output 11 -1)))))
+      (setq git-ps1-mode-lighter-text
+            (format git-ps1-mode-lighter-text-format
+                    output))
       (force-mode-line-update))))
 
 (defun git-ps1-mode-clear-process (process state)
@@ -161,8 +167,9 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
   :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
-        (setq git-ps1-mode-ps1-file
-              (git-ps1-mode-find-ps1-file))
+        (or git-ps1-mode-ps1-file
+            (setq git-ps1-mode-ps1-file
+                  (git-ps1-mode-find-ps1-file)))
         (git-ps1-mode-update-current)
         (add-hook 'after-change-major-mode-hook
                   'git-ps1-mode-update-current)
