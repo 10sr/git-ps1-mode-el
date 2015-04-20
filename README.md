@@ -37,7 +37,7 @@ User Configuration Variables
 
   Values for "GIT_PS1_SHOWDIRTYSTATE", "GIT_PS1_SHOWSTASHSTATE",
   "GIT_PS1_SHOWUNTERACKEDFILES" and "GIT_PS1_SHOWUPSTREAM" respectively.
-  These variables are for configuring "git_ps1" output: see document in
+  These variables are for configuring `__git_ps1` output: see document in
   "git-prompt.sh" file for details.
 
 
