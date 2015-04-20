@@ -59,7 +59,7 @@ other files.")
 (defvar git-ps1-mode-showdirtystate
   (or (getenv "GIT_PS1_SHOWDIRTYSTATE")
       "")
-  "Value of  GIT_PS1_SHOWDIRTYSTATE when running __git_ps1.")
+  "Value of GIT_PS1_SHOWDIRTYSTATE when running __git_ps1.")
 
 (defvar git-ps1-mode-showstashstate
   (or (getenv "GIT_PS1_SHOWSTASHSTATE")
