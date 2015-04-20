@@ -5,15 +5,19 @@
 git-ps1-mode.el
 ===============
 
-Global minor-mode to print __git_ps1 .
+![SS](ss.png)
+
+Global minor-mode to print `__git_ps1` .
+
+This minor-mode print current `git` status in emacs mode-line as a mode-name.
+Status text will be generated with `__git_ps1`, which is usually defined in
+`"git-prompt.sh"`.
 
 
 
-Overview
------
 
-
-### User Configuration Variables ###
+User Configuration Variables
+----------------------------
 
 * `git-ps1-mode-lighter-text-format`
 
