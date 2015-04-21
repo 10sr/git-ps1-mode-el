@@ -136,11 +136,11 @@ String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
        (with-temp-buffer
          (insert ". " f "; "
                  "__git_ps1 %s;")
-         (eq 0 (shell-command-on-region (point-min)
-                                        (point-max)
-                                        "bash -s"
-                                        nil
-                                        t)))
+         (= 0 (shell-command-on-region (point-min)
+                                       (point-max)
+                                       "bash -s"
+                                       nil
+                                       t)))
        f))
 
 (defun git-ps1-mode-find-ps1-file (&optional list)
