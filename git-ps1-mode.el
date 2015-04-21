@@ -188,7 +188,8 @@ document of that function for details about PROCESS and STATE."
 
 ;; Functions for hooks
 
-;; hook#1 after-change-major-mode-hook, after-save-hook
+;; hook#1 after-change-major-mode-hook, after-save-hook,
+;; window-configuration-change-hook
 (defun git-ps1-mode-update-current ()
   "Update status text immediately."
   (interactive)
@@ -229,18 +230,14 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
                   'git-ps1-mode-update-current)
         (add-hook 'after-save-hook
                   'git-ps1-mode-update-current)
-        (add-hook 'select-window-functions
-                  'git-ps1-mode-update-when-select-window)
-        (add-hook 'set-selected-window-buffer-functions
-                  'git-ps1-mode-update-when-set-window-buffer))
+        (add-hook 'window-configuration-change-hook
+                  'git-ps1-mode-update-current))
     (remove-hook 'after-change-major-mode-hook
                  'git-ps1-mode-update-current)
     (remove-hook 'after-save-hook
                  'git-ps1-mode-update-current)
-    (remove-hook 'select-window-functions
-                 'git-ps1-mode-update-when-select-window)
-    (remove-hook 'set-selected-window-buffer-functions
-                 'git-ps1-mode-update-when-set-window-buffer))
+    (remove-hook 'window-configuration-change-hook
+                 'git-ps1-mode-update-current))
   (force-mode-line-update t))
 
 (provide 'git-ps1-mode)
