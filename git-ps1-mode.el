@@ -50,7 +50,7 @@
 
 ;; * `git-ps1-mode-ps1-file-candidates-list`
 
-;;   List of candidates that may contain \"__git_ps1\" definition.
+;;   List of candidates that may contain `__git_ps1` definition.
 ;;   At the first invocation, `git-ps1-mode` searchs these files for `__git_ps1`
 ;;   definition, and set the first file to `git-ps1-mode-ps1-file`.
 
