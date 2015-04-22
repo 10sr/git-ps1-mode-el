@@ -64,6 +64,11 @@
 ;;   These variables configure output of `__git_ps1`: see document in
 ;;   "git-prompt.sh" file for details.
 
+;; * `git-ps1-mode-idle-interval`
+
+;;   If Emacs is idle for this seconds, this mode will update the status text.
+;;   By default it is set to `2`.
+
 
 ;; TODO: Instruct users to set git-ps1-mode-ps1-file
 ;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
@@ -131,7 +136,7 @@ String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
 (make-variable-buffer-local 'git-ps1-mode-process)
 
 
-(defvar git-ps1-mode-idle-interval 3
+(defvar git-ps1-mode-idle-interval 2
   "If Emacs is idle for this seconds `git-ps1-mode' will update lighter text.")
 
 (defvar git-ps1-mode-idle-timer-object nil
