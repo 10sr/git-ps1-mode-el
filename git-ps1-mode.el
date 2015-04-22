@@ -2,7 +2,7 @@
 
 ;; Author: 10sr <8slashes+el [at] gmail [dot] com>
 ;; URL: https://github.com/10sr/git-ps1-mode-el
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Keywords: utility mode-line git
 
 ;; Contributor: acple <silentsphere110@gmail.com>
