@@ -2,7 +2,7 @@
 
 ;; Author: 10sr <8slashes+el [at] gmail [dot] com>
 ;; URL: https://github.com/10sr/git-ps1-mode-el
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Keywords: utility mode-line git
 
 ;; Contributor: acple <silentsphere110@gmail.com>
@@ -64,8 +64,17 @@
 ;;   These variables configure output of `__git_ps1`: see document in
 ;;   "git-prompt.sh" file for details.
 
+;; * `git-ps1-mode-idle-interval`
+
+;;   If Emacs is idle for this seconds, this mode will update the status text.
+;;   By default it is set to `2`.
+
+
+;; TODO: Instruct users to set git-ps1-mode-ps1-file
+;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
 
 ;;; Code:
+
 
 (defvar git-ps1-mode-ps1-file-candidates-list
   '(
@@ -125,6 +134,13 @@ String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
 ;; make local-variable
 (make-variable-buffer-local 'git-ps1-mode-lighter-text)
 (make-variable-buffer-local 'git-ps1-mode-process)
+
+
+(defvar git-ps1-mode-idle-interval 2
+  "If Emacs is idle for this seconds `git-ps1-mode' will update lighter text.")
+
+(defvar git-ps1-mode-idle-timer-object nil
+  "Idle timer object returned from `run-with-idle-timer'.")
 
 
 
@@ -220,7 +236,7 @@ document of that function for details about PROCESS and STATE."
 ;; Functions for hooks
 
 ;; hook#1 after-change-major-mode-hook, after-save-hook,
-;; window-configuration-change-hook
+;; window-configuration-change-hook, run-with-idle-timer
 (defun git-ps1-mode-update-current ()
   "Update status text immediately."
   (interactive)
@@ -262,13 +278,20 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
         (add-hook 'after-save-hook
                   'git-ps1-mode-update-current)
         (add-hook 'window-configuration-change-hook
-                  'git-ps1-mode-update-current))
+                  'git-ps1-mode-update-current)
+        (setq git-ps1-mode-idle-timer-object
+              (run-with-idle-timer git-ps1-mode-idle-interval
+                                   t
+                                   'git-ps1-mode-update-current)))
     (remove-hook 'after-change-major-mode-hook
                  'git-ps1-mode-update-current)
     (remove-hook 'after-save-hook
                  'git-ps1-mode-update-current)
     (remove-hook 'window-configuration-change-hook
-                 'git-ps1-mode-update-current))
+                 'git-ps1-mode-update-current)
+    (cancel-timer git-ps1-mode-idle-timer-object)
+    (setq git-ps1-mode-idle-timer-object
+          nil))
   (force-mode-line-update t))
 
 (provide 'git-ps1-mode)

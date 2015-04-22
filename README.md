@@ -44,6 +44,11 @@ User Configuration Variables
   These variables configure output of `__git_ps1`: see document in
   "git-prompt.sh" file for details.
 
+* `git-ps1-mode-idle-interval`
+
+  If Emacs is idle for this seconds, this mode will update the status text.
+  By default it is set to `2`.
+
 
 License
 -------
