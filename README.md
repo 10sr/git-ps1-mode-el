@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/10sr/git-ps1-mode-el.svg)](https://travis-ci.org/10sr/git-ps1-mode-el)
+[![MELPA Stable](http://stable.melpa.org/packages/git-ps1-mode-badge.svg)](http://stable.melpa.org/#/git-ps1-mode)
+[![MELPA](http://melpa.org/packages/git-ps1-mode-badge.svg)](http://melpa.org/#/git-ps1-mode)
 
 
 
