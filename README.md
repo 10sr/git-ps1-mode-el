@@ -29,11 +29,10 @@ User Configuration Variables
   `" [GIT:%s]"`.
 
 
-* `git-ps1-mode-ps1-file-candidates-list`
+* `git-ps1-mode-ps1-file`
 
-  List of candidates that may contain `__git_ps1` definition.
-  At the first invocation, `git-ps1-mode` searchs these files for `__git_ps1`
-  definition, and set the first file to `git-ps1-mode-ps1-file`.
+  File path to the script that has `__git_ps1` definition.
+  When set to nil, try to find the definition automatically.
 
 
 * `git-ps1-mode-showdirtystate`
@@ -50,6 +49,15 @@ User Configuration Variables
 
   If Emacs is idle for this seconds, this mode will update the status text.
   By default it is set to `2`.
+
+
+
+Utility Function
+----------------
+
+* `git-ps1-mode-get-current (&optional format dir)`
+
+  Return current `__git_ps1` execution output as string.
 
 
 License
