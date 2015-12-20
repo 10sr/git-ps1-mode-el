@@ -48,11 +48,10 @@
 ;;   Format string for `git-ps1-mode` lighter (mode-name). By default it is set to
 ;;   `" [GIT:%s]"`.
 
-;; * `git-ps1-mode-ps1-file-candidates-list`
+;; * `git-ps1-mode-ps1-file`
 
-;;   List of candidates that may contain `__git_ps1` definition.
-;;   At the first invocation, `git-ps1-mode` searchs these files for `__git_ps1`
-;;   definition, and set the first file to `git-ps1-mode-ps1-file`.
+;;   File path to the script that has `__git_ps1` definition.
+;;   When set to nil, try to find the definition automatically.
 
 ;; * `git-ps1-mode-showdirtystate`
 ;; * `git-ps1-mode-showstashstate`
@@ -100,7 +99,8 @@ If set to nil when enabling `git-ps1-mode', try to find the definition from
   "Script with __git_ps1 definition.
 
 This is actually called by `git-ps1-mode-run-process' and is set when enabling
-`git-ps1-mode' from `git-ps1-mode-ps1-file' or the result of
+`git-ps1-mode'.
+The value will be taken from `git-ps1-mode-ps1-file' or the result of
 `git-ps1-mode-find-ps1-file'.")
 
 ;; variables to configure __git_ps1
@@ -253,20 +253,6 @@ document of that function for details about PROCESS and STATE."
   (unless (minibufferp (current-buffer))
     (git-ps1-mode-schedule-update (current-buffer) t))))
 
-;; hook#2 select-window-functions
-(defun git-ps1-mode-update-when-select-window (before-win after-win)
-  "Update status text immediately.
-BEFORE-WIN and AFTER-WIN will be passed by `select-window-functions' hook."
-  (unless (minibufferp (window-buffer after-win))
-    (git-ps1-mode-schedule-update (window-buffer after-win))))
-
-;; hook#3 set-selected-window-buffer-functions
-(defun git-ps1-mode-update-when-set-window-buffer (before-buf win after-buf)
-  "Update status text immediately.
-BEFORE-BUF, WIN and AFTER-BUF will be passed by
-`set-selected-window-buffer-functions' hook."
-  (unless (minibufferp after-buf)
-    (git-ps1-mode-schedule-update after-buf)))
 
 
 
