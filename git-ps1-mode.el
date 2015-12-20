@@ -69,10 +69,9 @@
 ;;   By default it is set to `2`.
 
 
-;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
-
 ;;; Code:
 
+;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
 
 (defvar git-ps1-mode-ps1-file
   nil
