@@ -154,6 +154,10 @@ This variable is used when `git-ps1-mode-ps1-file' is set to nil.")
 (defvar git-ps1-mode-idle-timer-object nil
   "Idle timer object returned from `run-with-idle-timer'.")
 
+(defvar git-ps1-mode-bash-executable
+  (executable-find "bash")
+  "Path to bash executable.")
+
 
 
 ;; Functions
@@ -166,7 +170,8 @@ This variable is used when `git-ps1-mode-ps1-file' is set to nil.")
                  "__git_ps1 %s;")
          (= 0 (shell-command-on-region (point-min)
                                        (point-max)
-                                       "bash -s"
+                                       (concat git-ps1-mode-bash-executable
+                                               " -s")
                                        nil
                                        t)))
        f))
@@ -208,9 +213,10 @@ Set FORCE to non-nil to skip buffer check."
                                        ,@process-environment))
                 (process-connection-type nil))
             (setq git-ps1-mode-process
-                  (start-process "git-ps1-mode" buffer
-                                 ;; TODO: parameterize bash executable
-                                 "bash" "-s"))
+                  (start-process "git-ps1-mode"
+                                 buffer
+                                 git-ps1-mode-bash-executable
+                                 "-s"))
             (set-process-filter git-ps1-mode-process
                                 'git-ps1-mode-update-modeline)
             (set-process-sentinel git-ps1-mode-process
@@ -324,7 +330,7 @@ If optional argument DIR is given, run __git_ps1 in that directory."
                                ,@process-environment))
         (dir (or dir
                  default-directory)))
-    (if (and (executable-find "bash")
+    (if (and git-ps1-mode-bash-executable
              gcmpl
              (file-readable-p gcmpl)
              (file-directory-p dir))
@@ -337,7 +343,8 @@ If optional argument DIR is given, run __git_ps1 in that directory."
                   ";")
           (shell-command-on-region (point-min)
                                    (point-max)
-                                   "bash -s"
+                                   (concat (shell-quote-argument git-ps1-mode-bash-executable)
+                                           " -s")
                                    nil
                                    t)
           (buffer-substring-no-properties (point-min)
