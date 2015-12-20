@@ -87,29 +87,25 @@ If set to nil, try to find the definition from
 
 ;; variables to configure __git_ps1
 (defcustom git-ps1-mode-showdirtystate
-  (or (getenv "GIT_PS1_SHOWDIRTYSTATE")
-      "")
+  (getenv "GIT_PS1_SHOWDIRTYSTATE")
   "Value of GIT_PS1_SHOWDIRTYSTATE when running __git_ps1."
   :group 'git-ps1-mode
   :type 'string)
 
 (defcustom git-ps1-mode-showstashstate
-  (or (getenv "GIT_PS1_SHOWSTASHSTATE")
-      "")
+  (getenv "GIT_PS1_SHOWSTASHSTATE")
   "Value of GIT_PS1_SHOWSTASHSTATE when running __git_ps1."
   :group 'git-ps1-mode
   :type 'string)
 
 (defcustom git-ps1-mode-showuntrackedfiles
-  (or (getenv "GIT_PS1_SHOWUNTRACKEDFILES")
-      "")
+  (getenv "GIT_PS1_SHOWUNTRACKEDFILES")
   "Value of GIT_PS1_SHOWUNTRACKEDFILES when running __git_ps1."
   :group 'git-ps1-mode
   :type 'string)
 
 (defcustom git-ps1-mode-showupstream
-  (or (getenv "GIT_PS1_SHOWUPSTREAM")
-      "")
+  (getenv "GIT_PS1_SHOWUPSTREAM")
   "Value of GIT_PS1_SHOWUPSTREAM when running __git_ps1."
   :group 'git-ps1-mode
   :type 'string)
@@ -198,13 +194,17 @@ Set FORCE to non-nil to skip buffer check."
       (with-current-buffer buffer
         (unless git-ps1-mode-process
           (let ((process-environment `(,(concat "GIT_PS1_SHOWDIRTYSTATE="
-                                                git-ps1-mode-showdirtystate)
+                                                (or git-ps1-mode-showdirtystate
+                                                    ""))
                                        ,(concat "GIT_PS1_SHOWSTASHSTATE="
-                                                git-ps1-mode-showstashstate)
+                                                (or git-ps1-mode-showstashstate
+                                                    ""))
                                        ,(concat "GIT_PS1_SHOWUNTRACKEDFILES="
-                                                git-ps1-mode-showuntrackedfiles)
+                                                (or git-ps1-mode-showuntrackedfiles
+                                                    ""))
                                        ,(concat "GIT_PS1_SHOWUPSTREAM="
-                                                git-ps1-mode-showupstream)
+                                                (or git-ps1-mode-showupstream
+                                                    ""))
                                        ,@process-environment))
                 (process-connection-type nil))
             (setq git-ps1-mode-process
