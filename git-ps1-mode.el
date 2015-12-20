@@ -75,6 +75,12 @@
 ;;; Code:
 
 
+(defvar git-ps1-mode-ps1-file
+  nil
+  "File path that contains \"__git_ps1\" definition.
+If set to nil, try to find the definition from
+ `git-ps1-mode-ps1-file-candidates-list' by `git-ps1-mode-find-ps1-file'.")
+
 (defvar git-ps1-mode-ps1-file-candidates-list
   '(
     "/Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh"
@@ -85,23 +91,13 @@
     "/opt/local/share/git-core/git-prompt.sh"
     "/opt/local/etc/bash_completion.d/git"
     )
-  "List of candidates that may contain \"__git_ps1\" definition.
-This list will be loaded at the first time when `git-ps1-mode' is enabled.")
+  "List of candidates that may contain \"__git_ps1\" definition.")
 
-(defvar git-ps1-mode-ps1-file
-  nil
-  "File path that contains \"__git_ps1\" definition.
-If set to nil when enabling `git-ps1-mode', try to find the definition from
- `git-ps1-mode-ps1-file-candidates-list' by `git-ps1-mode-find-ps1-file'.")
-
-(defvar git-ps1-mode--ps1-file-actual
+(defvar git-ps1-mode--ps1-file-candidates-found
   nil
   "Script with __git_ps1 definition.
+This variable is used when `git-ps1-mode-ps1-file' is set to nil.")
 
-This is actually called by `git-ps1-mode-run-process' and is set when enabling
-`git-ps1-mode'.
-The value will be taken from `git-ps1-mode-ps1-file' or the result of
-`git-ps1-mode-find-ps1-file'.")
 
 ;; variables to configure __git_ps1
 ;; TODO: use defcustom
@@ -182,7 +178,8 @@ This function returns the path of the first file foundor nil if none.  If LIST
 (defun git-ps1-mode-schedule-update (buffer &optional force)
   "Register process execution timer.
 Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
-  (when (and git-ps1-mode--ps1-file-actual
+  (when (and (or git-ps1-mode-ps1-file
+                 git-ps1-mode--ps1-file-candidates-found)
              (file-directory-p default-directory))
     (run-with-idle-timer
      0.0 nil #'git-ps1-mode-run-process buffer force)))
@@ -217,7 +214,8 @@ Set FORCE to non-nil to skip buffer check."
                                           nil)
           (process-send-string git-ps1-mode-process
                                (format ". \"%s\"; __git_ps1 %s"
-                                       git-ps1-mode--ps1-file-actual
+                                       (or git-ps1-mode-ps1-file
+                                           git-ps1-mode--ps1-file-candidates-found)
                                        "%s"))
           (process-send-eof git-ps1-mode-process)))))))
 
@@ -265,9 +263,8 @@ document of that function for details about PROCESS and STATE."
   :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
-        (setq git-ps1-mode--ps1-file-actual
-              (or git-ps1-mode-ps1-file
-                  (git-ps1-mode-find-ps1-file)))
+        (setq git-ps1-mode--ps1-file-candidates-found
+              (git-ps1-mode-find-ps1-file))
         (git-ps1-mode-update-current)
         (add-hook 'after-change-major-mode-hook
                   'git-ps1-mode-update-current)
