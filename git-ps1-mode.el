@@ -73,44 +73,59 @@
 
 ;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
 
-(defvar git-ps1-mode-ps1-file
+(defgroup git-ps1-mode nil
+  "Global minor-mode to print __git_ps1."
+  :group 'tools)
+
+(defcustom git-ps1-mode-ps1-file
   nil
   "File path that contains \"__git_ps1\" definition.
 If set to nil, try to find the definition from
- `git-ps1-mode-ps1-file-candidates-list' by `git-ps1-mode-find-ps1-file'.")
+ `git-ps1-mode-ps1-file-candidates-list' by `git-ps1-mode-find-ps1-file'."
+  :group 'git-ps1-mode
+  :type 'string)
 
 ;; variables to configure __git_ps1
-;; TODO: use defcustom
-(defvar git-ps1-mode-showdirtystate
+(defcustom git-ps1-mode-showdirtystate
   (or (getenv "GIT_PS1_SHOWDIRTYSTATE")
       "")
-  "Value of GIT_PS1_SHOWDIRTYSTATE when running __git_ps1.")
+  "Value of GIT_PS1_SHOWDIRTYSTATE when running __git_ps1."
+  :group 'git-ps1-mode
+  :type 'string)
 
-(defvar git-ps1-mode-showstashstate
+(defcustom git-ps1-mode-showstashstate
   (or (getenv "GIT_PS1_SHOWSTASHSTATE")
       "")
-  "Value of GIT_PS1_SHOWSTASHSTATE when running __git_ps1.")
+  "Value of GIT_PS1_SHOWSTASHSTATE when running __git_ps1."
+  :group 'git-ps1-mode
+  :type 'string)
 
-(defvar git-ps1-mode-showuntrackedfiles
+(defcustom git-ps1-mode-showuntrackedfiles
   (or (getenv "GIT_PS1_SHOWUNTRACKEDFILES")
       "")
-  "Value of GIT_PS1_SHOWUNTRACKEDFILES when running __git_ps1.")
+  "Value of GIT_PS1_SHOWUNTRACKEDFILES when running __git_ps1."
+  :group 'git-ps1-mode
+  :type 'string)
 
-(defvar git-ps1-mode-showupstream
+(defcustom git-ps1-mode-showupstream
   (or (getenv "GIT_PS1_SHOWUPSTREAM")
       "")
-  "Value of GIT_PS1_SHOWUPSTREAM when running __git_ps1.")
+  "Value of GIT_PS1_SHOWUPSTREAM when running __git_ps1."
+  :group 'git-ps1-mode
+  :type 'string)
 
 
-;; TODO: use defcustom
-(defvar git-ps1-mode-lighter-text-format " [GIT:%s]"
+(defcustom git-ps1-mode-lighter-text-format " [GIT:%s]"
   "Format for `git-ps1-mode' lighter.
-String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
+String \"%s\" will be replaced with the output of \"__git_ps1 %s\"."
+  :group 'git-ps1-mode
+  :type 'string)
 
 
-;; TODO: use defcustom
-(defvar git-ps1-mode-idle-interval 2
-  "If Emacs is idle for this seconds `git-ps1-mode' will update lighter text.")
+(defcustom git-ps1-mode-idle-interval 2
+  "If Emacs is idle for this seconds `git-ps1-mode' will update lighter text."
+  :group 'git-ps1-mode
+  :type 'number)
 
 
 (defvar git-ps1-mode-ps1-file-candidates-list
