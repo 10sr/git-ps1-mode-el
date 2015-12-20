@@ -310,7 +310,8 @@ Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
   "Return current __git_ps1 execution output as string.
 
 Give FORMAT if you want to specify other than \"%s\".
-If optional argument DIR is given, run __git_ps1 in that directory."
+If optional argument DIR is given, run __git_ps1 in that directory.
+This function returns nil if the output is not available for some reasons."
   (let ((gcmpl (or git-ps1-mode-ps1-file
                    git-ps1-mode--ps1-file-candidates-found
                    (setq git-ps1-mode--ps1-file-candidates-found
@@ -330,7 +331,7 @@ If optional argument DIR is given, run __git_ps1 in that directory."
                                ,@process-environment))
         (dir (or dir
                  default-directory)))
-    (if (and git-ps1-mode-bash-executable
+    (when (and git-ps1-mode-bash-executable
              gcmpl
              (file-readable-p gcmpl)
              (file-directory-p dir))
@@ -348,8 +349,7 @@ If optional argument DIR is given, run __git_ps1 in that directory."
                                    nil
                                    t)
           (buffer-substring-no-properties (point-min)
-                                          (point-max)))
-      "")))
+                                          (point-max))))))
 
 (provide 'git-ps1-mode)
 
