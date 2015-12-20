@@ -92,12 +92,19 @@ This list will be loaded at the first time when `git-ps1-mode' is enabled.")
 (defvar git-ps1-mode-ps1-file
   nil
   "File path that contains \"__git_ps1\" definition.
-Usually this will be searched automatically by `git-ps1-mode-find-ps1-file'
-so usually you do not need to set this explicitly.
-Instead, add to `git-ps1-mode-ps1-file-candidates-list' if you want to check
-other files.")
+If set to nil when enabling `git-ps1-mode', try to find the definition from
+ `git-ps1-mode-ps1-file-candidates-list' by `git-ps1-mode-find-ps1-file'.")
+
+(defvar git-ps1-mode--ps1-file-actual
+  nil
+  "Script with __git_ps1 definition.
+
+This is actually called by `git-ps1-mode-run-process' and is set when enabling
+`git-ps1-mode' from `git-ps1-mode-ps1-file' or the result of
+`git-ps1-mode-find-ps1-file'.")
 
 ;; variables to configure __git_ps1
+;; TODO: use defcustom
 (defvar git-ps1-mode-showdirtystate
   (or (getenv "GIT_PS1_SHOWDIRTYSTATE")
       "")
@@ -122,20 +129,20 @@ other files.")
 
 (defvar git-ps1-mode-process nil
   "Existing process object or nil.")
+(make-variable-buffer-local 'git-ps1-mode-process)
 
 (defvar git-ps1-mode-lighter-text
   ""
   "Lighter text for `git-ps1-mode'.  This variable is for internal usage.")
+(make-variable-buffer-local 'git-ps1-mode-lighter-text)
 
+;; TODO: use defcustom
 (defvar git-ps1-mode-lighter-text-format " [GIT:%s]"
   "Format for `git-ps1-mode' lighter.
 String \"%s\" will be replaced with the output of \"__git_ps1 %s\".")
 
-;; make local-variable
-(make-variable-buffer-local 'git-ps1-mode-lighter-text)
-(make-variable-buffer-local 'git-ps1-mode-process)
 
-
+;; TODO: use defcustom
 (defvar git-ps1-mode-idle-interval 2
   "If Emacs is idle for this seconds `git-ps1-mode' will update lighter text.")
 
@@ -175,7 +182,7 @@ This function returns the path of the first file foundor nil if none.  If LIST
 (defun git-ps1-mode-schedule-update (buffer &optional force)
   "Register process execution timer.
 Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
-  (when (and git-ps1-mode-ps1-file
+  (when (and git-ps1-mode--ps1-file-actual
              (file-directory-p default-directory))
     (run-with-idle-timer
      0.0 nil #'git-ps1-mode-run-process buffer force)))
@@ -210,7 +217,7 @@ Set FORCE to non-nil to skip buffer check."
                                           nil)
           (process-send-string git-ps1-mode-process
                                (format ". \"%s\"; __git_ps1 %s"
-                                       git-ps1-mode-ps1-file
+                                       git-ps1-mode--ps1-file-actual
                                        "%s"))
           (process-send-eof git-ps1-mode-process)))))))
 
@@ -272,8 +279,8 @@ BEFORE-BUF, WIN and AFTER-BUF will be passed by
   :lighter (:eval git-ps1-mode-lighter-text)
   (if git-ps1-mode
       (progn
-        (or git-ps1-mode-ps1-file
-            (setq git-ps1-mode-ps1-file
+        (setq git-ps1-mode--ps1-file-actual
+              (or git-ps1-mode-ps1-file
                   (git-ps1-mode-find-ps1-file)))
         (git-ps1-mode-update-current)
         (add-hook 'after-change-major-mode-hook
