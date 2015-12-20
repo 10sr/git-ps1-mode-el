@@ -175,13 +175,15 @@ This function returns the path of the first file foundor nil if none.  If LIST
 (defun git-ps1-mode-schedule-update (buffer &optional force)
   "Register process execution timer.
 Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
-  (when git-ps1-mode-ps1-file
+  (when (and git-ps1-mode-ps1-file
+             (file-directory-p default-directory))
     (run-with-idle-timer
      0.0 nil #'git-ps1-mode-run-process buffer force)))
 
 (defun git-ps1-mode-run-process (buffer force)
   "Run git process in BUFFER and get branch name.
 Set FORCE to non-nil to skip buffer check."
+  (when (file-directory-p default-directory)
   (when (or (and force (buffer-live-p buffer))
             (eq buffer (current-buffer)))
     (with-current-buffer buffer
@@ -210,7 +212,7 @@ Set FORCE to non-nil to skip buffer check."
                                (format ". \"%s\"; __git_ps1 %s"
                                        git-ps1-mode-ps1-file
                                        "%s"))
-          (process-send-eof git-ps1-mode-process))))))
+          (process-send-eof git-ps1-mode-process)))))))
 
 (defun git-ps1-mode-update-modeline (process output)
   "Format output of `git-ps1-mode-run-process' and update modeline.
@@ -240,8 +242,9 @@ document of that function for details about PROCESS and STATE."
 (defun git-ps1-mode-update-current ()
   "Update status text immediately."
   (interactive)
+  (when (file-directory-p default-directory)
   (unless (minibufferp (current-buffer))
-    (git-ps1-mode-schedule-update (current-buffer) t)))
+    (git-ps1-mode-schedule-update (current-buffer) t))))
 
 ;; hook#2 select-window-functions
 (defun git-ps1-mode-update-when-select-window (before-win after-win)
