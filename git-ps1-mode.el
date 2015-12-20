@@ -266,7 +266,7 @@ Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
 
 
 
-;; Minor-mode
+;; Minor-mode and user functions
 
 ;;;###autoload
 (define-minor-mode git-ps1-mode
@@ -298,6 +298,51 @@ Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
     (setq git-ps1-mode-idle-timer-object
           nil))
   (force-mode-line-update t))
+
+;;;###autoload
+(defun git-ps1-mode-get-current (&optional format dir)
+  "Return current __git_ps1 execution output as string.
+
+Give FORMAT if you want to specify other than \"%s\".
+If optional argument DIR is given, run __git_ps1 in that directory."
+  (let ((gcmpl (or git-ps1-mode-ps1-file
+                   git-ps1-mode--ps1-file-candidates-found
+                   (setq git-ps1-mode--ps1-file-candidates-found
+                         (git-ps1-mode-find-ps1-file))))
+        (process-environment `(,(concat "GIT_PS1_SHOWDIRTYSTATE="
+                                        (or git-ps1-mode-showdirtystate
+                                            ""))
+                               ,(concat "GIT_PS1_SHOWSTASHSTATE="
+                                        (or git-ps1-mode-showstashstate
+                                            ""))
+                               ,(concat "GIT_PS1_SHOWUNTRACKEDFILES="
+                                        (or git-ps1-mode-showuntrackedfiles
+                                            ""))
+                               ,(concat "GIT_PS1_SHOWUPSTREAM="
+                                        (or git-ps1-mode-showupstream
+                                            ""))
+                               ,@process-environment))
+        (dir (or dir
+                 default-directory)))
+    (if (and (executable-find "bash")
+             gcmpl
+             (file-readable-p gcmpl)
+             (file-directory-p dir))
+        (with-temp-buffer
+          (cd dir)
+          (insert ". " gcmpl
+                  "; __git_ps1 "
+                  (shell-quote-argument (or format
+                                            "%s"))
+                  ";")
+          (shell-command-on-region (point-min)
+                                   (point-max)
+                                   "bash -s"
+                                   nil
+                                   t)
+          (buffer-substring-no-properties (point-min)
+                                          (point-max)))
+      "")))
 
 (provide 'git-ps1-mode)
 
