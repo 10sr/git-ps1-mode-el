@@ -35,10 +35,7 @@ User Configuration Variables
   When set to nil, try to find the definition automatically.
 
 
-* `git-ps1-mode-showdirtystate`
-* `git-ps1-mode-showstashstate`
-* `git-ps1-mode-showuntrackedfiles`
-* `git-ps1-mode-showupstream`
+* `git-ps1-mode-showdirtystate` `git-ps1-mode-showstashstate` `git-ps1-mode-showuntrackedfiles` `git-ps1-mode-showupstream`
 
   Values for `GIT_PS1_SHOWDIRTYSTATE`, `GIT_PS1_SHOWSTASHSTATE`,
   `GIT_PS1_SHOWUNTERACKEDFILES` and `GIT_PS1_SHOWUPSTREAM` respectively.
