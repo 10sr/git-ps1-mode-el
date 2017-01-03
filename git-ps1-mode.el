@@ -166,7 +166,7 @@ This variable is used when `git-ps1-mode-ps1-file' is set to nil.")
   "Return F if F exists and it contain function \"__git_ps1\"."
   (and (file-readable-p f)
        (with-temp-buffer
-         (insert ". " f "; "
+         (insert ". " (shell-quote-argument f) "; "
                  "__git_ps1 %s;")
          (= 0 (shell-command-on-region (point-min)
                                        (point-max)
@@ -224,9 +224,10 @@ Set FORCE to non-nil to skip buffer check."
             (set-process-query-on-exit-flag git-ps1-mode-process
                                             nil)
             (process-send-string git-ps1-mode-process
-                                 (format ". \"%s\"; __git_ps1 %s"
-                                         (or git-ps1-mode-ps1-file
-                                             git-ps1-mode--ps1-file-candidates-found)
+                                 (format ". %s; __git_ps1 %s"
+                                         (shell-quote-argument
+                                          (or git-ps1-mode-ps1-file
+                                              git-ps1-mode--ps1-file-candidates-found))
                                          "%s"))
             (process-send-eof git-ps1-mode-process)))))))
 
