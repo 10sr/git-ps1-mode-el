@@ -180,13 +180,14 @@ This variable is used when `git-ps1-mode-ps1-file' is set to nil.")
   "Find file that contain \"__git_ps1\" definition from LIST.
 This function returns the path of the first file foundor nil if none.  If LIST
  if omitted `git-ps1-mode-ps1-file-candidates-list' will be used."
-  (let ((l (or list
-               git-ps1-mode-ps1-file-candidates-list)))
-    (and l
-         (if (git-ps1-mode-ps1-available-p (car l))
-             (car l)
-           (and (cdr l)
-                (git-ps1-mode-find-ps1-file (cdr l)))))))
+  (let ((default-directory (convert-standard-filename "/")))
+    (let ((l (or list
+                 git-ps1-mode-ps1-file-candidates-list)))
+      (and l
+           (if (git-ps1-mode-ps1-available-p (car l))
+               (car l)
+             (and (cdr l)
+                  (git-ps1-mode-find-ps1-file (cdr l))))))))
 
 
 (defun git-ps1-mode-run-process (buffer force)
