@@ -258,18 +258,21 @@ document of that function for details about PROCESS and STATE."
 (defun git-ps1-mode-update-current ()
   "Update status text immediately."
   (interactive)
-  (when (file-directory-p default-directory)
-    (unless (minibufferp (current-buffer))
-      (git-ps1-mode-schedule-update (current-buffer) t))))
+  (walk-windows
+   (lambda (win)
+     (let ((buf (window-buffer win)))
+       (unless (minibufferp buf)
+         (git-ps1-mode-schedule-update buf t))))))
 
 (defun git-ps1-mode-schedule-update (buffer &optional force)
   "Register process execution timer.
 Arguments BUFFER and FORCE will be passed to `git-ps1-mode-run-proess'."
-  (when (and (or git-ps1-mode-ps1-file
-                 git-ps1-mode--ps1-file-candidates-found)
-             (file-directory-p default-directory))
-    (run-with-idle-timer
-     0.0 nil #'git-ps1-mode-run-process buffer force)))
+  (with-current-buffer buffer
+    (when (and (or git-ps1-mode-ps1-file
+                   git-ps1-mode--ps1-file-candidates-found)
+               (file-directory-p default-directory))
+      (run-with-idle-timer
+       0.0 nil #'git-ps1-mode-run-process buffer force))))
 
 
 
