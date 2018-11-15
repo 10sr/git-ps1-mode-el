@@ -73,6 +73,8 @@
 
 ;; TODO: Use same status text if `git rev-parse --show-toplevel` is same
 
+(require 'cl-lib)
+
 (defgroup git-ps1-mode nil
   "Global minor-mode to print __git_ps1."
   :group 'tools)
@@ -193,44 +195,47 @@ This function returns the path of the first file foundor nil if none.  If LIST
 (defun git-ps1-mode-run-process (buffer force)
   "Run git process in BUFFER and get branch name.
 Set FORCE to non-nil to skip buffer check."
-  (when (file-directory-p default-directory)
-    (when (or (and force
-                   (buffer-live-p buffer))
-              (eq buffer (current-buffer)))
-      (with-current-buffer buffer
-        (unless git-ps1-mode-process
-          (let ((process-environment `(,(concat "GIT_PS1_SHOWDIRTYSTATE="
-                                                (or git-ps1-mode-showdirtystate
-                                                    ""))
-                                       ,(concat "GIT_PS1_SHOWSTASHSTATE="
-                                                (or git-ps1-mode-showstashstate
-                                                    ""))
-                                       ,(concat "GIT_PS1_SHOWUNTRACKEDFILES="
-                                                (or git-ps1-mode-showuntrackedfiles
-                                                    ""))
-                                       ,(concat "GIT_PS1_SHOWUPSTREAM="
-                                                (or git-ps1-mode-showupstream
-                                                    ""))
-                                       ,@process-environment))
-                (process-connection-type nil))
-            (setq git-ps1-mode-process
-                  (start-process "git-ps1-mode"
-                                 buffer
-                                 git-ps1-mode-bash-executable
-                                 "-s"))
-            (set-process-filter git-ps1-mode-process
-                                'git-ps1-mode-update-modeline)
-            (set-process-sentinel git-ps1-mode-process
-                                  'git-ps1-mode-clear-process)
-            (set-process-query-on-exit-flag git-ps1-mode-process
-                                            nil)
-            (process-send-string git-ps1-mode-process
-                                 (format ". %s; __git_ps1 %s"
-                                         (shell-quote-argument
-                                          (or git-ps1-mode-ps1-file
-                                              git-ps1-mode--ps1-file-candidates-found))
-                                         "%s"))
-            (process-send-eof git-ps1-mode-process)))))))
+  (when (or (and force
+                 (buffer-live-p buffer))
+            (eq buffer (current-buffer)))
+    (with-current-buffer buffer
+      (unless git-ps1-mode-process
+        (let ((default-directory (cl-loop with d = default-directory
+                                          until (file-directory-p d)
+                                          do (setq d (expand-file-name (concat d "/..")))
+                                          finally return d))
+              (process-environment `(,(concat "GIT_PS1_SHOWDIRTYSTATE="
+                                              (or git-ps1-mode-showdirtystate
+                                                  ""))
+                                     ,(concat "GIT_PS1_SHOWSTASHSTATE="
+                                              (or git-ps1-mode-showstashstate
+                                                  ""))
+                                     ,(concat "GIT_PS1_SHOWUNTRACKEDFILES="
+                                              (or git-ps1-mode-showuntrackedfiles
+                                                  ""))
+                                     ,(concat "GIT_PS1_SHOWUPSTREAM="
+                                              (or git-ps1-mode-showupstream
+                                                  ""))
+                                     ,@process-environment))
+              (process-connection-type nil))
+          (setq git-ps1-mode-process
+                (start-process "git-ps1-mode"
+                               buffer
+                               git-ps1-mode-bash-executable
+                               "-s"))
+          (set-process-filter git-ps1-mode-process
+                              'git-ps1-mode-update-modeline)
+          (set-process-sentinel git-ps1-mode-process
+                                'git-ps1-mode-clear-process)
+          (set-process-query-on-exit-flag git-ps1-mode-process
+                                          nil)
+          (process-send-string git-ps1-mode-process
+                               (format ". %s; __git_ps1 %s"
+                                       (shell-quote-argument
+                                        (or git-ps1-mode-ps1-file
+                                            git-ps1-mode--ps1-file-candidates-found))
+                                       "%s"))
+          (process-send-eof git-ps1-mode-process))))))
 
 (defun git-ps1-mode-update-modeline (process output)
   "Format output of `git-ps1-mode-run-process' and update modeline.
